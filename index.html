@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Red Bull Flavors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Titan+One&family=Black+Ops+One&family=Jost:wght@900&display=swap">
+<link rel="stylesheet" href="css/style.css?v=33">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <filter id="outline" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="3" result="d"/><feFlood flood-color="#ffffff"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="mbL" x="-25%" y="0" width="150%" height="100%"><feGaussianBlur stdDeviation="0 0"/></filter>
+  <filter id="mbR" x="-25%" y="0" width="150%" height="100%"><feGaussianBlur stdDeviation="0 0"/></filter>
+  <filter id="puff" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+    <feSpecularLighting in="blur" surfaceScale="6" specularConstant="1" specularExponent="22" lighting-color="#ffffff" result="spec"><feDistantLight azimuth="235" elevation="52"/></feSpecularLighting>
+    <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+    <feComposite in="SourceGraphic" in2="specIn" operator="arithmetic" k1="0" k2="1" k3="0.4" k4="0"/>
+  </filter>
+</defs></svg>
+
+<section class="intro" id="intro" aria-label="Home">
+  <div class="intro-top"><span class="mark" aria-hidden="true">◆◆◆</span><a class="skip" href="#catalog">Flavors ↓</a></div>
+  <div class="intro-main">
+    <div class="word" role="img" aria-label="Red Bull">
+      <span class="ltr" data-rot="0" style="--i:0" aria-hidden="true"><span class="bob"><span class="glyph g1">R</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:1" aria-hidden="true"><span class="bob"><span class="glyph g2">e</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:2" aria-hidden="true"><span class="bob"><span class="glyph g3">d</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:3" aria-hidden="true"><span class="bob"><span class="glyph g4">B</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:4" aria-hidden="true"><span class="bob"><span class="glyph g5">u</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:5" aria-hidden="true"><span class="bob"><span class="glyph g6">l</span></span></span>
+      <span class="ltr" data-rot="0" style="--i:6" aria-hidden="true"><span class="bob"><span class="glyph g7">l</span></span></span>
+    </div>
+    <div class="bulls" id="bulls" aria-hidden="true">
+      <span class="sun-clip"><span class="sun"></span></span>
+      <span class="bull bl"></span><span class="bull br"></span>
+    </div>
+    <div class="sub"><span>energy drinks</span></div>
+    <a class="cue" href="#catalog" aria-label="Down to flavors"><span>scroll</span><i aria-hidden="true">↓</i></a>
+  </div>
+  <div class="strip" aria-hidden="true"><div class="track">
+    <div><span class="m1">Red Bull</span><i>◆</i><span class="m2">energy drinks</span><i>◆</i><span class="m3">catalog 2026</span><i>◆</i><span class="m1">Red Bull</span><i>◆</i><span class="m2">energy drinks</span><i>◆</i><span class="m3">catalog 2026</span><i>◆</i></div>
+    <div><span class="m1">Red Bull</span><i>◆</i><span class="m2">energy drinks</span><i>◆</i><span class="m3">catalog 2026</span><i>◆</i><span class="m1">Red Bull</span><i>◆</i><span class="m2">energy drinks</span><i>◆</i><span class="m3">catalog 2026</span><i>◆</i></div>
+  </div></div>
+</section>
+
+<header class="top" id="catalog"><div class="gut"><span class="brand">RED BULL</span><span class="tag">energy drinks · demo</span></div></header>
+
+<section class="stage" id="stage" aria-label="Flavor carousel">
+  <canvas id="gl"></canvas>
+  <button class="arrow prev" id="prev" type="button" aria-label="Previous flavor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="arrow next" id="next" type="button" aria-label="Next flavor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <p class="fallback" id="fallback" hidden>3D is not available in this browser. Use the buttons below to switch flavors.</p>
+</section>
+
+<section class="info"><div class="gut">
+  <div id="copy" class="swap">
+    <div class="flavor-tag" id="ftag"></div>
+    <h1 id="fname"></h1>
+    <p class="desc" id="fdesc"></p>
+    <div class="dots" id="dots" role="group" aria-label="Choose a flavor"></div>
+    <a class="more" href="#story">More about this flavor ↓</a>
+  </div>
+  <div>
+    <dl id="facts"></dl>
+    <p class="demo">Per 250 ml (8.4 fl oz) can · source: redbull.com</p>
+  </div>
+</div></section>
+
+<section class="story" id="story" aria-label="About the selected flavor" data-step="0">
+  <div class="story-pin">
+    <div class="story-bg"></div>
+    <div class="story-clouds" aria-hidden="true"></div>
+    <div class="story-big" aria-hidden="true">GIVES YOU WINGS</div>
+    <canvas id="gl2"></canvas>
+    <div class="story-copy">
+      <div class="step on"><span class="chip">Flavor</span><h2 id="st0"></h2><p id="sp0"></p></div>
+      <div class="step"><span class="chip">Sugar</span><h2 id="st1"></h2><p id="sp1"></p></div>
+      <div class="step"><span class="chip">Caffeine</span><h2 id="st2"></h2><p id="sp2"></p></div>
+    </div>
+    <div class="story-final">
+      <p class="final-cap">Red Bull gives you wings</p>
+      <a class="skip" href="#catalog">← Back to flavors</a>
+    </div>
+    <nav class="story-nav" aria-label="Sections">
+      <button type="button" aria-label="Flavor" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></button>
+      <button type="button" aria-label="Sugar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M5 12h14M12 5v14"/></svg></button>
+      <button type="button" aria-label="Caffeine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></button>
+      <button type="button" aria-label="Finale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 14c-2-5-6-7-10-7 1 5 4 8 10 7zM12 14c2-5 6-7 10-7-1 5-4 8-10 7z"/></svg></button>
+    </nav>
+  </div>
+</section>
+
+<section class="pour" id="pour" aria-label="Open the can">
+  <canvas id="gl3"></canvas>
+  <div class="pour-copy">
+    <span class="chip" id="pTag">CLASSIC</span>
+    <h2 class="pour-title">Pour yourself wings</h2>
+    <div class="pour-actions">
+      <button class="pour-btn" id="pourBtn" type="button">Open the can</button>
+      <button class="sound-btn" id="soundBtn" type="button" aria-pressed="true">Sound: on</button>
+    </div>
+  </div>
+</section>
+
+<footer class="foot"><div class="gut">
+  <span class="brand">RED BULL</span>
+  <span class="tag">Unofficial fan project · not affiliated with Red Bull GmbH</span>
+  <a class="skip" href="#intro">Back to top ↑</a>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="js/flavors.js?v=33"></script>
+<script src="js/sound.js?v=33"></script>
+<script src="js/carousel.js?v=33"></script>
+<script src="js/bulls.js?v=33"></script>
+<script src="js/intro.js?v=33"></script>
+</body>
+</html>

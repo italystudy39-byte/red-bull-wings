@@ -1,0 +1,334 @@
+/* Layout: тёмная сцена на всю ширину с 3D-каруселью, под ней панель с названием и фактами выбранной банки.
+   Единый тёмный вид выбран намеренно: сцена с подсветкой читается только на тёмном фоне. */
+:root {
+  color-scheme: dark;
+  --bg: #07090d;
+  --surface: #10141b;
+  --ink: #eef1f6;
+  --muted: #8f9aab;
+  --line: rgba(238, 241, 246, .16);
+  --accent: #7f93ff;
+  --glow: rgba(70, 100, 255, .28);
+  --font-display: "Unbounded", "Arial Black", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+.gut {
+  max-width: 1080px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.top { background: var(--bg); }
+.top .gut { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-block: 16px; }
+.brand { font-family: var(--font-display); font-weight: 700; letter-spacing: .18em; font-size: 15px; }
+.tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.stage {
+  position: relative; height: clamp(460px, 76vh, 740px); overflow: hidden; cursor: grab; touch-action: pan-y;
+  background:
+    radial-gradient(55% 50% at 50% 66%, var(--glow), transparent 72%),
+    radial-gradient(90% 60% at 50% 0%, #1a212c, transparent 70%),
+    linear-gradient(#07090d, #0d1219 70%, #090c11);
+}
+.stage:active { cursor: grabbing; }
+@media (max-width: 600px) { .stage { height: clamp(380px, 58vh, 520px); } }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(7, 9, 13, .45); color: var(--ink); cursor: pointer;
+  display: grid; place-items: center; backdrop-filter: blur(4px);
+}
+.arrow:hover { border-color: var(--ink); }
+.arrow.prev { left: max(12px, env(safe-area-inset-left, 0px)); }
+.arrow.next { right: max(12px, env(safe-area-inset-right, 0px)); }
+.arrow svg { width: 20px; height: 20px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.fallback { position: absolute; inset: auto 16px 16px 16px; margin: 0; color: var(--muted); font-size: 14px; text-align: center; }
+
+.info { background: var(--bg); border-top: 1px solid var(--line); }
+.info .gut { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px 40px; padding-block: 24px 40px; align-items: start; }
+@media (max-width: 720px) { .info .gut { grid-template-columns: minmax(0, 1fr); } }
+.flavor-tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 6vw, 52px); line-height: 1.05; margin: 6px 0 10px; overflow-wrap: anywhere; text-wrap: balance; }
+.desc { color: var(--muted); max-width: 52ch; margin: 0; }
+dl { margin: 0; display: grid; }
+dl div { display: flex; justify-content: space-between; gap: 12px; padding-block: 10px; border-top: 1px solid var(--line); }
+dl div:last-child { border-bottom: 1px solid var(--line); }
+dt { color: var(--muted); }
+dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.demo { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: 8px 0 0; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 18px; }
+.dot { width: 44px; height: 44px; background: transparent; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center; }
+.dot i { width: 14px; height: 14px; border-radius: 50%; display: block; border: 2px solid transparent; box-shadow: 0 0 0 1px var(--line); transition: transform .2s; }
+.dot[aria-current="true"] i { transform: scale(1.35); border-color: var(--ink); }
+.swap { animation: swap .35s ease both; }
+@keyframes swap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .swap { animation: none; } .dot i { transition: none; } }
+
+/* ---------- Заставка при заходе ---------- */
+html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+#catalog { scroll-snap-align: start; }
+.intro {
+  --p: 0;
+  position: relative; background: #09090b; color: #fff; overflow: hidden; scroll-snap-align: start;
+  min-height: 100vh; min-height: 100svh;
+  display: grid; grid-template-rows: auto 1fr auto;
+}
+/* Переход при прокрутке: --p от 0 до 1 задаёт скрипт */
+.intro-top { opacity: max(0, calc(1 - var(--p) * 2)); }
+.intro-main { opacity: max(0, calc(1 - var(--p) * 1.35)); translate: 0 calc(var(--p) * -9vh); }
+.word { scale: calc(1 + var(--p) * .35); }
+.ltr {
+  translate: calc(var(--dx, 0) * var(--p) * 1px) calc(var(--dy, 0) * var(--p) * 1px);
+  rotate: calc(var(--sp, 0) * var(--p) * 1deg);
+}
+.track { translate: calc(var(--p) * -18vw) 0; }
+.cue {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 44px;
+  margin-top: clamp(6px, 2vh, 18px); color: rgba(255, 255, 255, .7); text-decoration: none;
+  font: 500 12px var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+  opacity: 0; animation: cueIn .6s 2.6s ease forwards;
+}
+.cue i { font-style: normal; font-size: 18px; animation: cueBob 1.4s ease-in-out infinite; }
+@keyframes cueIn { to { opacity: 1; } }
+@keyframes cueBob { 50% { transform: translateY(6px); } }
+.static .cue { opacity: 1; animation: none; }
+@media (prefers-reduced-motion: reduce) { .cue { animation: none; opacity: 1; } .cue i { animation: none; } html { scroll-snap-type: none; } }
+.static .ltr { opacity: 1; }
+.static .sub span { transform: none; }
+.static .strip { opacity: 1; }
+.intro-top {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.mark { font-size: 14px; letter-spacing: .3em; color: #c8ff2e; }
+.skip {
+  font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: #fff; background: transparent;
+  border: 1px solid rgba(255, 255, 255, .3); padding: 10px 14px; min-height: 44px; cursor: pointer;
+  display: inline-flex; align-items: center; text-decoration: none;
+}
+.skip:hover { border-color: #fff; }
+.intro-main {
+  display: grid; place-content: center; justify-items: center; gap: clamp(2px, 1.5vh, 14px); text-align: center; min-width: 0;
+  padding-inline: max(12px, env(safe-area-inset-left, 0px));
+}
+.word { display: flex; align-items: center; justify-content: center; font-size: clamp(56px, min(19vw, 25vh), 200px); line-height: 1; }
+.ltr { display: inline-block; opacity: 0; margin-inline: .005em; } /* буквы не налезают: обводка соседней не перечёркивает букву */
+.bob { display: block; }
+/* После удара: слово бьётся как сердце (двойной толчок волной по буквам) и пульсирует красным свечением */
+.idle .bob { animation: beat 1.4s cubic-bezier(.3,0,.2,1) infinite; animation-delay: calc(var(--i) * .035s); }
+@keyframes beat {
+  0%, 40%, 100% { transform: scale(1) rotate(0deg); }
+  8% { transform: scale(1.09, 1.04) rotate(-1.5deg); }
+  16% { transform: scale(.98) rotate(0deg); }
+  24% { transform: scale(1.06, 1.03) rotate(1deg); }
+}
+/* Красное свечение — отдельный слой за словом; меняется только прозрачность, это дёшево для браузера */
+.word::before {
+  content: ""; position: absolute; inset: -18% -6%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 30, 60, .55), rgba(255, 30, 60, 0));
+  opacity: 0; will-change: opacity;
+}
+.idle .word::before { animation: rage 1.4s ease-out infinite; }
+@keyframes rage { 0%, 40%, 100% { opacity: .15; } 10% { opacity: 1; } 26% { opacity: .7; } }
+.word { position: relative; isolation: isolate; }
+.shock {
+  position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  border: 10px solid rgba(255, 40, 70, .85); box-shadow: 0 0 30px rgba(255, 40, 70, .6), inset 0 0 20px rgba(255, 40, 70, .5);
+  transform: translate(-50%, -50%) scale(.2); opacity: 0;
+}
+.rage-flash {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(60% 50% at 50% 40%, rgba(255, 30, 60, .35), rgba(255, 30, 60, 0) 70%);
+}
+/* Шрифт как у логотипа Red Bull: геометрический гротеск в духе Futura (Jost), самое жирное начертание.
+   Красный фирменный цвет, тонкая белая обводка, между Red и Bull — пробел */
+.glyph {
+  display: block; line-height: 1; padding: .06em .02em;
+  font-family: "Jost", "Futura", "Arial Black", sans-serif; font-weight: 900; font-size: 1em; letter-spacing: -.01em;
+  color: #db0a40;
+  /* Белая обводка только снаружи (тени под буквой, внутри «e»/«d» её не видно). Тени рисуются один раз —
+     в отличие от SVG-фильтра, который пересчитывался каждый кадр анимации и давал лаги */
+  text-shadow:
+    0.0220em 0.0000em 0 #fff, 0.0203em 0.0084em 0 #fff, 0.0156em 0.0156em 0 #fff, 0.0084em 0.0203em 0 #fff, 0.0000em 0.0220em 0 #fff, -0.0084em 0.0203em 0 #fff, -0.0156em 0.0156em 0 #fff, -0.0203em 0.0084em 0 #fff, -0.0220em 0.0000em 0 #fff, -0.0203em -0.0084em 0 #fff, -0.0156em -0.0156em 0 #fff, -0.0084em -0.0203em 0 #fff, -0.0000em -0.0220em 0 #fff, 0.0084em -0.0203em 0 #fff, 0.0156em -0.0156em 0 #fff, 0.0203em -0.0084em 0 #fff, 0 0 .012em #fff; /* 16 направлений — ровная тонкая обводка без «лесенки» */
+}
+.ltr, .bob, .glyph { will-change: transform; }
+.ltr:nth-child(4) { margin-left: .2em; }
+.sub { overflow: hidden; padding-block: .08em; }
+.sub span { display: block; font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 8.5vw, 88px); line-height: 1.1; transform: translateY(110%); }
+.strip {
+  overflow: hidden; border-block: 1px solid rgba(255, 255, 255, .18); padding-block: 12px; opacity: 0;
+  margin-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+.track { display: flex; width: max-content; animation: slide 18s linear infinite; }
+.track > div { display: flex; align-items: center; gap: 22px; padding-right: 22px; white-space: nowrap; font-size: clamp(18px, 3.4vw, 30px); }
+.track i { font-style: normal; color: #c8ff2e; font-size: .6em; }
+.m1 { font-family: "Jost", "Arial Black", sans-serif; font-weight: 900; color: #ff3347; }
+.m2 { font-family: var(--font-display); font-weight: 700; }
+.m3 { font-family: var(--font-mono); color: #9fb4ff; }
+@keyframes slide { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .track, .idle .bob { animation: none; } }
+
+.more {
+  display: inline-flex; align-items: center; min-height: 44px; margin-top: 14px; padding: 0 14px;
+  font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink);
+  border: 1px solid var(--line); text-decoration: none;
+}
+.more:hover { border-color: var(--ink); }
+
+/* ---------- История банки: секция закреплена, банка крутится от прокрутки ----------
+   Шаги 0–2 — факты о вкусе слева, шаг 3 — финал с облаками и большой надписью.
+   Номер шага в data-step выставляет carousel.js. */
+.story {
+  --s-base: #1f3c88; --s-base2: #0d1d4a; --s-accent: #ffc20e; --s-sky: #4f7fe0; --s-ink: #fff;
+  position: relative; height: 420vh; background: var(--bg);
+}
+.story-pin { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.story-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(70% 75% at 64% 50%, var(--s-base), var(--s-base2) 62%, #05070b);
+}
+.story-clouds {
+  position: absolute; inset: -10%; opacity: 0; transition: opacity .8s ease;
+  background:
+    radial-gradient(30% 22% at 18% 30%, rgba(255, 255, 255, .6), transparent 70%),
+    radial-gradient(28% 20% at 82% 22%, rgba(255, 255, 255, .5), transparent 70%),
+    radial-gradient(36% 25% at 28% 82%, rgba(255, 255, 255, .55), transparent 70%),
+    radial-gradient(30% 22% at 76% 78%, rgba(255, 255, 255, .5), transparent 70%),
+    linear-gradient(var(--s-sky), var(--s-base) 75%); /* небо в цвет банки, задаёт carousel.js */
+  filter: blur(30px); animation: drift 14s ease-in-out infinite alternate;
+}
+@keyframes drift { to { transform: translate3d(3%, -2%, 0) scale(1.06); } }
+/* Слоган над банкой, а не за ней; цвет текста контрастный к фону (--s-ink) */
+.story-big {
+  position: absolute; left: 0; right: 0; top: calc(4vh + env(safe-area-inset-top, 0px)); text-align: center; padding-inline: 16px;
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 7.2vw, 124px); line-height: 1; text-wrap: balance;
+  letter-spacing: -.02em; color: var(--s-ink); overflow-wrap: anywhere;
+  opacity: 0; transform: translateY(-24px); transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1);
+}
+.story[data-step="3"] .story-clouds { opacity: 1; }
+.story[data-step="3"] .story-big { opacity: 1; transform: none; }
+.story[data-step="3"] .final-cap { color: var(--s-ink); }
+.story[data-step="3"] .story-final .skip { color: var(--s-ink); border-color: color-mix(in srgb, var(--s-ink) 40%, transparent); }
+#gl2 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.story-copy { position: absolute; left: max(24px, 6vw); top: 50%; width: min(40ch, 38vw); }
+.step {
+  position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%);
+  opacity: 0; translate: 0 24px; pointer-events: none; transition: opacity .45s ease, translate .45s ease;
+}
+.step.on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.chip {
+  display: inline-block; padding: 4px 8px; background: var(--s-accent); color: #06080c;
+  font: 600 11px var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+}
+.step h2 {
+  font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(28px, 4vw, 56px); line-height: 1.02; margin: 12px 0 10px; overflow-wrap: anywhere;
+}
+.step p { margin: 0; color: rgba(255, 255, 255, .78); max-width: 36ch; }
+
+.story-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); display: grid; gap: 10px;
+  right: max(16px, 3vw, env(safe-area-inset-right, 0px));
+}
+.story-nav button {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(5, 7, 11, .35); color: #fff; display: grid; place-items: center; cursor: pointer;
+  backdrop-filter: blur(4px); transition: background .3s, color .3s;
+}
+.story-nav button:hover { border-color: #fff; }
+.story-nav button[aria-current="true"] { background: var(--s-accent); color: #06080c; border-color: transparent; }
+.story-nav svg { width: 20px; height: 20px; }
+
+.story-final {
+  position: absolute; left: 0; right: 0; bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  display: grid; justify-items: center; gap: 10px; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .5s ease;
+}
+.final-cap { margin: 0; font: 500 12px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
+.story[data-step="3"] .story-final { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 720px) {
+  .story-bg { background: radial-gradient(90% 60% at 50% 35%, var(--s-base), var(--s-base2) 65%, #05070b); }
+  .story-copy { left: 16px; right: 72px; top: auto; bottom: calc(32px + env(safe-area-inset-bottom, 0px)); width: auto; }
+  .step { top: auto; bottom: 0; transform: none; }
+  .story-nav { top: auto; bottom: calc(32px + env(safe-area-inset-bottom, 0px)); transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-clouds { animation: none; }
+  .step, .story-big, .story-clouds, .story-final { transition: none; }
+}
+
+/* ---------- Футер: банка открывается и наливается в стакан ----------
+   Цвета подставляет carousel.js под выбранный вкус. */
+.pour {
+  --p-base: #1f3c88; --p-base2: #0d1d4a; --p-accent: #ffc20e;
+  position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden;
+  background:
+    radial-gradient(45% 55% at 68% 62%, color-mix(in srgb, var(--p-base) 55%, transparent), transparent 75%),
+    linear-gradient(#05070b, var(--p-base2) 140%);
+}
+#gl3 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pour-copy { position: absolute; left: max(24px, 6vw); top: 50%; transform: translateY(-50%); width: min(30ch, 40vw); }
+.pour .chip { background: var(--p-accent); }
+.pour-title {
+  font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(30px, 4.6vw, 64px); line-height: 1; margin: 14px 0 22px; text-wrap: balance;
+}
+.pour-btn {
+  min-height: 52px; padding: 0 26px; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--p-accent); color: #06080c; font: 700 14px var(--font-display); letter-spacing: .06em; text-transform: uppercase;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--p-accent) 60%, transparent); animation: ping 2.2s ease-out infinite;
+}
+.pour-btn:hover { filter: brightness(1.08); }
+.pour-btn:disabled { opacity: .55; cursor: default; animation: none; }
+@keyframes ping { 70% { box-shadow: 0 0 0 18px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.foot { border-top: 1px solid var(--line); background: var(--bg); }
+.foot .gut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+.foot .skip { color: var(--ink); border-color: var(--line); }
+@media (max-width: 720px) {
+  .pour-copy { left: 16px; right: 16px; top: auto; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: none; width: auto; }
+  .pour-title { margin: 10px 0 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .pour-btn { animation: none; } }
+.pour-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.sound-btn {
+  min-height: 44px; padding: 0 14px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: transparent;
+  color: #fff; font: 500 12px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+}
+.sound-btn:hover { border-color: #fff; }
+.sound-btn[aria-pressed="false"] { opacity: .6; }
+
+/* ---------- Быки на заставке: вбегают с боков и встречаются у солнца ----------
+   Пропорции и солнце взяты из логотипа: кадр 640×248, центр солнца 322;130, радиус 127. */
+.bulls { position: relative; width: clamp(200px, min(40vw, 46vh), 440px); aspect-ratio: 640 / 248; margin-top: clamp(2px, 1vh, 10px); }
+.bulls .bull { position: absolute; top: 0; height: 100%; transform-origin: 50% 100%; will-change: transform; }
+.bulls .bl { left: 0; width: 50.3%; transform: translateX(-75vw); }
+.bulls .br { right: 0; width: 49.7%; transform: translateX(75vw); }
+.bulls canvas { display: block; width: 100%; height: 100%; }
+.sun-clip { position: absolute; inset: 0; } /* без обрезки: солнце — полный круг, сияние не срезается */
+.sun {
+  position: absolute; left: 50.3%; top: 52.4%; width: 39.7%; aspect-ratio: 1; border-radius: 50%;
+  background: #fdd301; transform: translate(-50%, -50%) scale(0);
+  box-shadow: 0 0 34px 8px rgba(253, 211, 1, .5), 0 0 90px 24px rgba(253, 211, 1, .18); /* сияние есть всегда */
+}
+.idle .sun { animation: sunGlow 2.6s ease-in-out infinite alternate; }
+@keyframes sunGlow {
+  from { box-shadow: 0 0 30px 6px rgba(253, 211, 1, .45), 0 0 80px 20px rgba(253, 211, 1, .15); }
+  to { box-shadow: 0 0 44px 12px rgba(253, 211, 1, .62), 0 0 110px 32px rgba(253, 211, 1, .24); }
+}
+.static .bulls .bull { transform: none; }
+.static .sun { transform: translate(-50%, -50%); }
+@media (prefers-reduced-motion: reduce) { .idle .sun { animation: none; } }
+.puff {
+  position: absolute; bottom: 0; width: 9%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(214, 200, 182, .6), rgba(214, 200, 182, 0) 70%);
+}
